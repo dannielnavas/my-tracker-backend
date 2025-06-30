@@ -1,0 +1,72 @@
+import { Module } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Client } from 'pg';
+import config from '../config';
+
+const API_KEY = config().apiKey;
+const API_KEY_PROD = config().apiKeyProd;
+
+// const client = new Client({
+//   user: 'postgres',
+//   host: 'localhost',
+//   database: 'nestjs',
+//   password: '123456',
+//   port: 5432,
+// });
+
+// client.connect();
+
+@Module({
+  imports: [
+    TypeOrmModule.forRootAsync({
+      useFactory: (configService: ConfigType<typeof config>) => {
+        const { username, host, database, password, port } =
+          configService.postgres;
+        return {
+          type: 'postgres',
+          host,
+          port,
+          username,
+          password,
+          database,
+          synchronize: true, // Solo para desarrollo (no usar en producción)
+          //sunchronize: false, // en producción
+          autoLoadEntities: true,
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        };
+      },
+      inject: [config.KEY],
+    }),
+  ],
+  providers: [
+    {
+      provide: 'API_KEY',
+      useValue: process.env.NODE_ENV === 'prod' ? API_KEY_PROD : API_KEY,
+    },
+    {
+      provide: 'PG',
+      useFactory: (configServices: ConfigType<typeof config>) => {
+        const { username, host, database, password, port } =
+          configServices.postgres;
+        const client = new Client({
+          user: username,
+          host,
+          database,
+          password,
+          port,
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        });
+        client.connect();
+        return client;
+      },
+      inject: [config.KEY],
+    },
+  ],
+  exports: ['API_KEY', 'PG', TypeOrmModule],
+})
+export class DatabaseModule {}
