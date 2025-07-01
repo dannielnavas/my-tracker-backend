@@ -2,33 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Users } from './user.entity';
+import { Tasks } from './tasks.entity';
 
 @Entity()
-export class SubscriptionPlans {
+export class StatusTasks {
   @PrimaryGeneratedColumn()
-  subscription_plan_id: number;
+  status_task_id: number;
   @Column({
     type: 'varchar',
     length: 255,
   })
   name: string;
-  @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    nullable: true,
-  })
-  price: number;
-  @Column({
-    type: 'varchar',
-    length: 255,
-  })
-  description: string;
+
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
@@ -42,7 +31,6 @@ export class SubscriptionPlans {
   })
   updated_at: Date;
 
-  // 1:1 bidirectional es solo en la entidad
-  @OneToOne(() => Users, (user) => user.subscriptionPlan, { nullable: true })
-  user: Users;
+  @OneToMany(() => Tasks, (task) => task.statusTask)
+  tasks: Tasks[];
 }

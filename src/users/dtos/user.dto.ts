@@ -1,6 +1,6 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -9,11 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The user id of the User.' })
-  readonly user_id: number;
-
   @IsString()
   @IsEmail()
   @ApiProperty({ description: 'The email of the User.' })
@@ -43,16 +38,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @ApiProperty({ description: 'The subscription plan id of the User.' })
   readonly subscription_plan_id: number;
-
-  @IsDate()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The created at of the User.' })
-  readonly created_at: Date;
-
-  @IsDate()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The updated at of the User.' })
-  readonly updated_at: Date;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

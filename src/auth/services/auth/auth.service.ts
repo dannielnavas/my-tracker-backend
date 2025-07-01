@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Token } from 'src/auth/models/token.model';
-import { User } from 'src/users/entities/user.entity';
+import { Users } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class AuthService {
     const user = await this.usersServices.findOneByEmail(email);
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
+      console.log(isMatch);
       if (isMatch) {
         const { password, ...result } = user;
         return result;
@@ -24,7 +25,7 @@ export class AuthService {
     return null;
   }
 
-  generateJWT(user: User) {
+  generateJWT(user: Users) {
     // TODO: el sub es un idetificador unico del usuario
     const payload: Token = { role: user.role, sub: user.user_id };
     return {

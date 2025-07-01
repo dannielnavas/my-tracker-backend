@@ -1,14 +1,18 @@
+import { Tasks } from 'src/tasks/entities/tasks.entity';
 import {
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { SubscriptionPlans } from './subscriptionPlans';
 
-export class User {
+@Entity()
+export class Users {
   @PrimaryGeneratedColumn()
   user_id: number;
   @Column({
@@ -56,5 +60,8 @@ export class User {
     { nullable: true },
   )
   @JoinColumn({ name: 'subscription_plan_id' })
-  subscription_plan_id: SubscriptionPlans;
+  subscriptionPlan: SubscriptionPlans;
+
+  @OneToMany(() => Tasks, (tasks) => tasks.user)
+  tasks: Tasks[];
 }
