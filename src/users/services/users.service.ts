@@ -2,8 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import config from 'src/config';
 import { Repository } from 'typeorm';
+import config from '../../config';
 import { CreateUserDto } from '../dtos/user.dto';
 import { Users } from '../entities/user.entity';
 

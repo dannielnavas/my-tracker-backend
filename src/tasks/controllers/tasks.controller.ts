@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
 import { TasksService } from '../services/tasks.service';
 
