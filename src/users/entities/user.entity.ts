@@ -3,8 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -54,9 +54,9 @@ export class Users {
   updated_at: Date;
 
   // 1:1 bidirectional en base de datos, solo uno de los dos lados debe tener JoinColumn
-  @OneToOne(
+  @ManyToOne(
     () => SubscriptionPlans,
-    (subscriptionPlans) => subscriptionPlans.user,
+    (subscriptionPlans) => subscriptionPlans.users,
     { nullable: true },
   )
   @JoinColumn({ name: 'subscription_plan_id' })

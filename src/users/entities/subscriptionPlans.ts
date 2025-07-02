@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -42,7 +42,7 @@ export class SubscriptionPlans {
   })
   updated_at: Date;
 
-  // 1:1 bidirectional es solo en la entidad
-  @OneToOne(() => Users, (user) => user.subscriptionPlan, { nullable: true })
-  user: Users;
+  // 1:N bidirectional: un plan puede tener varios usuarios
+  @OneToMany(() => Users, (user) => user.subscriptionPlan)
+  users: Users[];
 }
