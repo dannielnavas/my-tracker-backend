@@ -20,6 +20,11 @@ export class CreateTaskDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @ApiProperty({ description: 'The position of the Task.' })
+  readonly position: number;
+
+  @IsNumber()
+  @IsNotEmpty()
   @ApiProperty({ description: 'The user id of the Task.' })
   readonly user_id: number;
 }

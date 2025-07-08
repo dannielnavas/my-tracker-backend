@@ -25,7 +25,11 @@ export class Tasks {
     nullable: true,
   })
   description: string;
-
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
+  position: number;
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
