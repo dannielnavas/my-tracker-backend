@@ -25,8 +25,8 @@ export class TasksController {
   }
 
   @Get()
-  getAllTasksForUser(@Query('user_id') userId: number) {
-    return this.tasksService.getAllTasksForUser(userId);
+  getAllTasksForSprint(@Query('sprint_id') sprintId: number) {
+    return this.tasksService.getAllTasksForSprint(sprintId);
   }
 
   @Patch(':id')

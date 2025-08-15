@@ -38,6 +38,16 @@ export class CreateUserDto {
   @IsNotEmpty()
   @ApiProperty({ description: 'The subscription plan id of the User.' })
   readonly subscription_plan_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @ApiProperty({ description: 'The sprint id of the User.' })
+  readonly sprint_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @ApiProperty({ description: 'The settings id of the User.' })
+  readonly settings_id: number;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

@@ -1,3 +1,4 @@
+import { Sprints } from 'src/sprints/entities/sprint.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Users } from '../../users/entities/user.entity';
 import { StatusTasks } from './statusTasks.entity';
 
 @Entity()
@@ -43,12 +43,12 @@ export class Tasks {
   })
   updated_at: Date;
 
-  @ManyToOne(() => Users, (user) => user.tasks)
-  user: Users;
-
   @ManyToOne(() => StatusTasks, (statusTasks) => statusTasks.tasks, {
     nullable: true,
   })
   @JoinColumn({ name: 'status_task_id' })
   statusTask: StatusTasks;
+
+  @ManyToOne(() => Sprints, (sprint) => sprint.tasks)
+  sprint: Sprints;
 }

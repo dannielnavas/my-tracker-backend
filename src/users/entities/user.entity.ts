@@ -1,3 +1,5 @@
+import { Settings } from 'src/settings/entities/settings.entity';
+import { Sprints } from 'src/sprints/entities/sprint.entity';
 import {
   Column,
   CreateDateColumn,
@@ -5,10 +7,10 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tasks } from '../../tasks/entities/tasks.entity';
 import { SubscriptionPlans } from './subscriptionPlans';
 
 @Entity()
@@ -62,6 +64,9 @@ export class Users {
   @JoinColumn({ name: 'subscription_plan_id' })
   subscriptionPlan: SubscriptionPlans;
 
-  @OneToMany(() => Tasks, (tasks) => tasks.user)
-  tasks: Tasks[];
+  @OneToMany(() => Sprints, (sprint) => sprint.user)
+  sprints: Sprints[];
+
+  @OneToOne(() => Settings, (settings) => settings.user)
+  settings: Settings;
 }

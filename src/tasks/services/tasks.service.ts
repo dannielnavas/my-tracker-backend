@@ -11,15 +11,15 @@ export class TasksService {
   async create(data: CreateTaskDto) {
     const newTask = this.tasksRepo.create({
       ...data,
-      user: { user_id: data.user_id },
+      sprint: { sprint_id: data.sprint_id },
       statusTask: { status_task_id: data.status_task_id },
     });
     return this.tasksRepo.save(newTask);
   }
 
-  async getAllTasksForUser(userId: number) {
+  async getAllTasksForSprint(sprintId: number) {
     const tasks = await this.tasksRepo.find({
-      where: { user: { user_id: userId } },
+      where: { sprint: { sprint_id: sprintId } },
       relations: ['statusTask'],
     });
     if (!tasks) {
@@ -36,6 +36,9 @@ export class TasksService {
     this.tasksRepo.merge(task, payload);
     if (payload.status_task_id) {
       task.statusTask = { status_task_id: payload.status_task_id } as any;
+    }
+    if (payload.sprint_id) {
+      task.sprint = { sprint_id: payload.sprint_id } as any;
     }
     return this.tasksRepo.save(task);
   }

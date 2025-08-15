@@ -7,16 +7,6 @@ import config from '../config';
 const API_KEY = config().apiKey;
 const API_KEY_PROD = config().apiKeyProd;
 
-// const client = new Client({
-//   user: 'postgres',
-//   host: 'localhost',
-//   database: 'nestjs',
-//   password: '123456',
-//   port: 5432,
-// });
-
-// client.connect();
-
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({

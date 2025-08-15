@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import config from './config';
 import { DatabaseModule } from './database/database.module';
 import { environments } from './environments';
+import { SettingsModule } from './settings/settings.module';
+import { SprintsModule } from './sprints/sprints.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 
@@ -31,7 +33,9 @@ import { UsersModule } from './users/users.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
+    SprintsModule,
     TasksModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

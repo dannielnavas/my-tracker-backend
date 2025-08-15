@@ -25,8 +25,8 @@ export class CreateTaskDto {
 
   @IsNumber()
   @IsNotEmpty()
-  @ApiProperty({ description: 'The user id of the Task.' })
-  readonly user_id: number;
+  @ApiProperty({ description: 'The sprint id of the Task.' })
+  readonly sprint_id: number;
 }
 
 export class UpdateTaskDto extends PartialType(CreateTaskDto) {}
