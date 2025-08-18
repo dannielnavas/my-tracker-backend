@@ -33,4 +33,19 @@ export class TasksController {
   updateTask(@Param('id') id: number, @Body() payload: UpdateTaskDto) {
     return this.tasksService.updateTask(id, payload);
   }
+
+  @Get('count-task-pending/:sprint_id')
+  getCountTaskPending(@Param('sprint_id') sprintId: number) {
+    return this.tasksService.getCountTaskPending(sprintId);
+  }
+
+  @Get('count-task-completed/:sprint_id')
+  getCountTaskCompleted(@Param('sprint_id') sprintId: number) {
+    return this.tasksService.getCountTaskCompleted(sprintId);
+  }
+
+  @Get('count-task-in-progress/:sprint_id')
+  getCountTaskInProgress(@Param('sprint_id') sprintId: number) {
+    return this.tasksService.getCountTaskInProgress(sprintId);
+  }
 }

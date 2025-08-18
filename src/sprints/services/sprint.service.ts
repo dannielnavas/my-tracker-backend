@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import config from 'src/config';
+import { TasksService } from 'src/tasks/services/tasks.service';
 import { Repository } from 'typeorm';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 import { Sprints } from '../entities/sprint.entity';
@@ -12,10 +13,15 @@ export class SprintService {
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
     @InjectRepository(Sprints)
     private sprintRepository: Repository<Sprints>,
+    private tasksService: TasksService,
   ) {}
 
   async create(data: SprintsDto) {
-    const newSprint = this.sprintRepository.create(data);
+    const { user_id, ...sprintData } = data;
+    const newSprint = this.sprintRepository.create({
+      ...sprintData,
+      user: { user_id },
+    });
     return this.sprintRepository.save(newSprint);
   }
 
@@ -32,7 +38,15 @@ export class SprintService {
     if (!sprint) {
       throw new NotFoundException('Sprint not found');
     }
-    this.sprintRepository.merge(sprint, changes);
+
+    const { user_id, ...sprintChanges } = changes;
+    const updateData = { ...sprintChanges };
+
+    if (user_id) {
+      updateData['user'] = { user_id };
+    }
+
+    this.sprintRepository.merge(sprint, updateData);
     return this.sprintRepository.save(sprint);
   }
 
@@ -45,7 +59,46 @@ export class SprintService {
   }
 
   async findByUserId(userId: number) {
-    return this.sprintRepository.find({ where: { user: { user_id: userId } } });
+    const sprints = await this.sprintRepository
+      .find({
+        where: { user: { user_id: userId } },
+        order: {
+          status: {
+            direction: 'ASC',
+            // Usamos un CASE para que 'activate' sea primero
+            // Esto depende del soporte de la base de datos y TypeORM
+            // Si no soporta directamente, se puede usar queryBuilder
+          },
+        },
+      })
+      .then((sprints) => {
+        // Ordenar manualmente si el ORM no soporta CASE
+        return sprints
+          .sort((a, b) => {
+            if (a.status === 'activate' && b.status !== 'activate') return -1;
+            if (a.status !== 'activate' && b.status === 'activate') return 1;
+            return 0;
+          })
+          .filter((sprint) => sprint.status !== 'completed');
+      });
+    const sprintsWithTasks = await Promise.all(
+      sprints.map(async (sprint) => {
+        const countTaskPending = await this.tasksService.getCountTaskPending(
+          sprint.sprint_id,
+        );
+        const countTaskCompleted =
+          await this.tasksService.getCountTaskCompleted(sprint.sprint_id);
+        const countTaskInProgress =
+          await this.tasksService.getCountTaskInProgress(sprint.sprint_id);
+        return {
+          ...sprint,
+          countTaskPending,
+          countTaskCompleted,
+          countTaskInProgress,
+        };
+      }),
+    );
+    return sprintsWithTasks;
   }
 
   async findByTaskId(taskId: number) {

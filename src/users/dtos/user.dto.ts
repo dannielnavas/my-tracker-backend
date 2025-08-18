@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Length,
 } from 'class-validator';
@@ -35,19 +36,12 @@ export class CreateUserDto {
   readonly password: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The subscription plan id of the User.' })
-  readonly subscription_plan_id: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The sprint id of the User.' })
-  readonly sprint_id: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The settings id of the User.' })
-  readonly settings_id: number;
+  @IsOptional()
+  @ApiProperty({
+    description: 'The subscription plan id of the User.',
+    required: false,
+  })
+  readonly subscription_plan_id?: number;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

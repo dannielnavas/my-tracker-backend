@@ -3,6 +3,7 @@ import { Users } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -40,6 +41,7 @@ export class Sprints {
   @OneToMany(() => Tasks, (task) => task.sprint)
   tasks: Tasks[];
 
-  @ManyToOne(() => Users, (user) => user.sprints)
+  @ManyToOne(() => Users, (user) => user.sprints, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   user: Users;
 }

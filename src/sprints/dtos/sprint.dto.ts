@@ -1,6 +1,12 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class SprintsDto {
   @IsString()
@@ -23,15 +29,15 @@ export class SprintsDto {
   @ApiProperty({ description: 'The end date of the Sprint.' })
   readonly end_date: Date;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: 'The status of the Sprint.' })
   readonly status: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The task id of the Sprint.' })
-  readonly task_id: number;
+  @IsOptional()
+  @ApiProperty({ description: 'The task id of the Sprint.', required: false })
+  readonly task_id?: number;
 
   @IsNumber()
   @IsNotEmpty()

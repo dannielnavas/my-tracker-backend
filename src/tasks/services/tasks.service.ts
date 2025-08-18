@@ -42,4 +42,37 @@ export class TasksService {
     }
     return this.tasksRepo.save(task);
   }
+
+  // get count task pending
+  async getCountTaskPending(sprintId: number) {
+    const tasks = await this.tasksRepo.find({
+      where: {
+        sprint: { sprint_id: sprintId },
+        statusTask: { status_task_id: 1 },
+      },
+    });
+    return tasks.length;
+  }
+
+  // get count task completed
+  async getCountTaskCompleted(sprintId: number) {
+    const tasks = await this.tasksRepo.find({
+      where: {
+        sprint: { sprint_id: sprintId },
+        statusTask: { status_task_id: 3 },
+      },
+    });
+    return tasks.length;
+  }
+
+  // get count task in progress
+  async getCountTaskInProgress(sprintId: number) {
+    const tasks = await this.tasksRepo.find({
+      where: {
+        sprint: { sprint_id: sprintId },
+        statusTask: { status_task_id: 2 },
+      },
+    });
+    return tasks.length;
+  }
 }
