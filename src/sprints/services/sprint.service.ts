@@ -75,11 +75,10 @@ export class SprintService {
         // Ordenar manualmente si el ORM no soporta CASE
         return sprints
           .sort((a, b) => {
-            if (a.status === 'activate' && b.status !== 'activate') return -1;
-            if (a.status !== 'activate' && b.status === 'activate') return 1;
-            return 0;
+            return a.start_date.getTime() - b.start_date.getTime();
           })
-          .filter((sprint) => sprint.status !== 'completed');
+          .filter((sprint) => sprint.status !== 'completed')
+          .splice(0, 5);
       });
     const sprintsWithTasks = await Promise.all(
       sprints.map(async (sprint) => {
