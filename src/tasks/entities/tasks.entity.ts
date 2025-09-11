@@ -30,6 +30,11 @@ export class Tasks {
     nullable: true,
   })
   position: number;
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+  })
+  date_end: Date;
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { AiFunctionsModule } from './ai-functions/ai-functions.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './users/users.module';
         POSTGRES_DB: Joi.string().required(),
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
+        API_OPEN_AI: Joi.string().required(),
       }),
     }),
     DatabaseModule,
@@ -36,6 +38,7 @@ import { UsersModule } from './users/users.module';
     SprintsModule,
     TasksModule,
     SettingsModule,
+    AiFunctionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
 import { Tasks } from '../entities/tasks.entity';
 
@@ -74,5 +74,33 @@ export class TasksService {
       },
     });
     return tasks.length;
+  }
+
+  async getTasksBySprintIdPreviousDay(sprintId: number) {
+    const tasks = await this.tasksRepo.find({
+      where: {
+        sprint: { sprint_id: sprintId },
+        statusTask: { status_task_id: 3 },
+        date_end: LessThan(
+          new Date(new Date().setDate(new Date().getDate() - 1)),
+        ),
+      },
+      relations: ['statusTask'],
+    });
+    if (!tasks) {
+      throw new NotFoundException('Tasks not found');
+    }
+    return tasks;
+  }
+
+  async getTasksBySprintIdToday(sprintId: number) {
+    const tasks = await this.tasksRepo.find({
+      where: {
+        sprint: { sprint_id: sprintId },
+        statusTask: { status_task_id: 2 },
+      },
+      relations: ['statusTask', 'sprint'],
+    });
+    return tasks;
   }
 }

@@ -6,11 +6,16 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 import { SprintService } from '../services/sprint.service';
 
 @Controller('sprint')
+@ApiTags('Sprints')
+@UseGuards(JwtAuthGuard)
 export class SprintController {
   constructor(private sprintService: SprintService) {}
 
