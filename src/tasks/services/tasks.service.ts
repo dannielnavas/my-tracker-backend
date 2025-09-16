@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
@@ -6,6 +6,8 @@ import { Tasks } from '../entities/tasks.entity';
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(@InjectRepository(Tasks) private tasksRepo: Repository<Tasks>) {}
 
   async create(data: CreateTaskDto) {
@@ -77,6 +79,8 @@ export class TasksService {
   }
 
   async getTasksBySprintIdPreviousDay(sprintId: number) {
+    this.logger.log(`Getting tasks by sprint id ${sprintId}`);
+    this.logger.log(new Date(new Date().setDate(new Date().getDate() - 1)));
     const tasks = await this.tasksRepo.find({
       where: {
         sprint: { sprint_id: sprintId },
