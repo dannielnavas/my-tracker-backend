@@ -7,6 +7,7 @@ import { TasksService } from 'src/tasks/services/tasks.service';
 
 export interface OpenAIRequestDto {
   sprint_id: number;
+  dateReport: Date;
 }
 
 @Injectable()
@@ -25,6 +26,7 @@ export class AiFunctionsService {
   ): Promise<ChatCompletionMessage> {
     const tasksDone = await this.tasksService.getTasksBySprintIdPreviousDay(
       request.sprint_id,
+      request.dateReport,
     );
     const tasksToday = await this.tasksService.getTasksBySprintIdToday(
       request.sprint_id,

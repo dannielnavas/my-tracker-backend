@@ -78,7 +78,7 @@ export class TasksService {
     return tasks.length;
   }
 
-  async getTasksBySprintIdPreviousDay(sprintId: number) {
+  async getTasksBySprintIdPreviousDay(sprintId: number, dateReport: Date) {
     this.logger.log(`Getting tasks by sprint id ${sprintId}`);
     this.logger.log(new Date(new Date().setDate(new Date().getDate() - 1)));
     console.log(new Date(new Date().setDate(new Date().getDate() - 1)));
@@ -86,9 +86,7 @@ export class TasksService {
       where: {
         sprint: { sprint_id: sprintId },
         statusTask: { status_task_id: 3 },
-        date_end: LessThan(
-          new Date(new Date().setDate(new Date().getDate() - 1)),
-        ),
+        date_end: LessThan(dateReport),
       },
       relations: ['statusTask'],
     });
