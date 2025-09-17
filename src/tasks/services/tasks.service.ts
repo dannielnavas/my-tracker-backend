@@ -80,8 +80,8 @@ export class TasksService {
 
   async getTasksBySprintIdPreviousDay(sprintId: number, dateReport: Date) {
     this.logger.log(`Getting tasks by sprint id ${sprintId}`);
-    this.logger.log(dateReport);
-    console.log(dateReport);
+    this.logger.log('dateReport', dateReport);
+    console.log('dateReport', dateReport);
     const tasks = await this.tasksRepo.find({
       where: {
         sprint: { sprint_id: sprintId },

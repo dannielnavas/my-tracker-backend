@@ -24,6 +24,7 @@ export class AiFunctionsService {
   async chatCompletion(
     request: OpenAIRequestDto,
   ): Promise<ChatCompletionMessage> {
+    console.log('request', request);
     const tasksDone = await this.tasksService.getTasksBySprintIdPreviousDay(
       request.sprint_id,
       request.dateReport,
