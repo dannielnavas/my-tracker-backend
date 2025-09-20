@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
 import { Tasks } from '../entities/tasks.entity';
 
@@ -86,7 +86,7 @@ export class TasksService {
       where: {
         sprint: { sprint_id: sprintId },
         statusTask: { status_task_id: 3 },
-        date_end: LessThan(dateReport),
+        date_end: Equal(dateReport),
       },
       relations: ['statusTask'],
     });
