@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
 import { Tasks } from '../entities/tasks.entity';
 
@@ -82,11 +82,19 @@ export class TasksService {
     this.logger.log(`Getting tasks by sprint id ${sprintId}`);
     this.logger.log('dateReport', dateReport);
     console.log('dateReport', dateReport);
+
+    // Crear el rango de fechas desde las 00:00 hasta las 23:59:59.999
+    const startOfDay = new Date(dateReport);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(dateReport);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const tasks = await this.tasksRepo.find({
       where: {
         sprint: { sprint_id: sprintId },
         statusTask: { status_task_id: 3 },
-        date_end: Equal(dateReport),
+        date_end: Between(startOfDay, endOfDay),
       },
       relations: ['statusTask'],
     });
