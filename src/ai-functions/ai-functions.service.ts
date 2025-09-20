@@ -29,6 +29,7 @@ export class AiFunctionsService {
       request.sprint_id,
       request.dateReport,
     );
+    console.log('tasksDone', tasksDone);
     const tasksToday = await this.tasksService.getTasksBySprintIdToday(
       request.sprint_id,
     );
