@@ -43,7 +43,7 @@ Utiliza la siguiente estructura:
 
     Expón claramente en qué se trabajará hoy.
 
-    Identifica cualquier obstáculo o bloqueo. Si la información de obstáculos no está disponible, omite esta sección por completo para evitar alucinaciones.
+
 
 El tono debe ser tranquilo, claro y profesional. El discurso final debe ser listo para ser leído.
 
@@ -63,7 +63,6 @@ Use the following structure:
 
     Clear statement of what will be worked on today.
 
-    Identification and communication of any obstacles or blockers that are preventing progress. If there are none, mention it to ensure transparency.
 
 The tone should be direct, clear, and professional. Avoid unnecessary jargon. The final speech should be ready to be delivered.
 

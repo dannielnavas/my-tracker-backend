@@ -17,5 +17,6 @@ export default registerAs('config', () => {
     apiKeyProd: process.env.API_KEY,
     jwtSecret: process.env.JWT_SECRET,
     apiOpenAi: process.env.API_OPEN_AI,
+    apiKeyResend: process.env.API_KEY_RESEND,
   };
 });

@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import config from './config';
 import { DatabaseModule } from './database/database.module';
+import { EmailsModule } from './emails/emails.module';
 import { environments } from './environments';
 import { SettingsModule } from './settings/settings.module';
 import { SprintsModule } from './sprints/sprints.module';
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         API_OPEN_AI: Joi.string().required(),
+        API_KEY_RESEND: Joi.string().required(),
       }),
     }),
     DatabaseModule,
@@ -39,6 +41,7 @@ import { UsersModule } from './users/users.module';
     TasksModule,
     SettingsModule,
     AiFunctionsModule,
+    EmailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

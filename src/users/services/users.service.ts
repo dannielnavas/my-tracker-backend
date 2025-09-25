@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { EmailsService } from 'src/emails/services/emails.service';
 import { Repository } from 'typeorm';
 import config from '../../config';
 import { CreateUserDto } from '../dtos/user.dto';
@@ -13,6 +14,7 @@ export class UsersService {
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
     // @Inject('PG') private client: Client, para usar querys con postgres
     @InjectRepository(Users) private userRepo: Repository<Users>,
+    private emailsService: EmailsService,
   ) {}
   async create(data: CreateUserDto) {
     const hashPassword = await bcrypt.hashSync(data.password, 10);
@@ -23,6 +25,11 @@ export class UsersService {
         subscription_plan_id: data.subscription_plan_id,
       },
     });
+    await this.emailsService.sendEmail(
+      newUser.email,
+      'Welcome to My Tracker',
+      'Welcome to My Tracker',
+    );
     return this.userRepo.save(newUser);
   }
 
