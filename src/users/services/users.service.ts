@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -17,6 +22,10 @@ export class UsersService {
     private emailsService: EmailsService,
   ) {}
   async create(data: CreateUserDto) {
+    const user = await this.findOneByEmail(data.email);
+    if (user) {
+      throw new BadRequestException('User already exists');
+    }
     const hashPassword = await bcrypt.hashSync(data.password, 10);
     const newUser = this.userRepo.create({
       ...data,
