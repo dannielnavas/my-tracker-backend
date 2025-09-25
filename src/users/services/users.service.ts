@@ -27,8 +27,8 @@ export class UsersService {
     });
     await this.emailsService.sendEmail(
       newUser.email,
-      'Welcome to My Tracker',
-      'Welcome to My Tracker',
+      'Welcome to Focus Loop',
+      newUser.full_name,
     );
     return this.userRepo.save(newUser);
   }
