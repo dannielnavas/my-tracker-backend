@@ -14,7 +14,7 @@ export class EmailsService {
 
   async sendEmail(email: string, subject: string, text: string) {
     const { data, error } = await this.resend.emails.send({
-      from: 'My Tracker <no-reply@mytracker.com>',
+      from: 'My Tracker <no-reply@focus-loop-api.danniel.dev>',
       to: email,
       subject,
       text,
