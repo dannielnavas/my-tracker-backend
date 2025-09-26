@@ -10,14 +10,13 @@ import * as bcrypt from 'bcrypt';
 import { EmailsService } from 'src/emails/services/emails.service';
 import { Repository } from 'typeorm';
 import config from '../../config';
-import { CreateUserDto } from '../dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { Users } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
-    // @Inject('PG') private client: Client, para usar querys con postgres
     @InjectRepository(Users) private userRepo: Repository<Users>,
     private emailsService: EmailsService,
   ) {}
@@ -51,5 +50,29 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async findOne(id: number) {
+    const user = await this.userRepo.findOne({
+      where: { user_id: id },
+      relations: ['subscriptionPlan'],
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async update(id: number, data: UpdateUserDto) {
+    const user = await this.findOne(id);
+    this.userRepo.update(id, data);
+    return this.userRepo.save(user);
+  }
+
+  async changePassword(id: number, password: string) {
+    const user = await this.findOne(id);
+    const hashPassword = await bcrypt.hashSync(password, 10);
+    user.password = hashPassword;
+    return this.userRepo.save(user);
   }
 }

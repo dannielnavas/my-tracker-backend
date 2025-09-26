@@ -13,6 +13,7 @@ import { SettingsModule } from './settings/settings.module';
 import { SprintsModule } from './sprints/sprints.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UsersModule } from './users/users.module';
     SettingsModule,
     AiFunctionsModule,
     EmailsModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
