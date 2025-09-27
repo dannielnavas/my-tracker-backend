@@ -3,6 +3,7 @@ import { ConfigType } from '@nestjs/config';
 import OpenAI from 'openai';
 import { ChatCompletionMessage } from 'openai/resources/chat/completions';
 import config from 'src/config';
+import { PromptService } from 'src/prompt/service/prompt.service';
 import { TasksService } from 'src/tasks/services/tasks.service';
 
 export interface OpenAIRequestDto {
@@ -16,6 +17,7 @@ export class AiFunctionsService {
   constructor(
     @Inject(config.KEY) private configService: ConfigType<typeof config>,
     private tasksService: TasksService,
+    private promptService: PromptService,
   ) {
     this.openai = new OpenAI({
       apiKey: this.configService.apiOpenAi,
@@ -34,39 +36,10 @@ export class AiFunctionsService {
       request.sprint_id,
     );
     console.log(tasksDone);
-    const prompt = `
-    Eres un experto en comunicación efectiva y gestión de equipos. Tu objetivo es generar el discurso para la reunión diaria (Daily Scrum) utilizando exclusivamente la información proporcionada en las listas de tareas. No inventes ni añadas detalles que no estén presentes en los datos de entrada.
+    const prompt = await this.promptService.getPrompt();
 
-Utiliza la siguiente estructura:
-
-    Introduce de manera concisa lo que se logró ayer.
-
-    Expón claramente en qué se trabajará hoy.
-
-
-
-El tono debe ser tranquilo, claro y profesional. El discurso final debe ser listo para ser leído.
-
-Datos de entrada:
-
-    Tareas completadas ayer: ${tasksDone.map((task) => task.title).join(', ')}
-
-    Tareas para hoy: ${tasksToday.map((task) => task.title).join(', ')}
-    `;
-
-    const englishPrompt = `
-    You are an expert in effective communication and team management. Your goal is to generate the perfect speech for a daily meeting (Daily Scrum) based on the tasks provided.
-
-Use the following structure:
-
-    Concise introduction of what was accomplished yesterday.
-
-    Clear statement of what will be worked on today.
-
-
-The tone should be direct, clear, and professional. Avoid unnecessary jargon. The final speech should be ready to be delivered.
-
-Input data:
+    const promptFinal = `
+    ${prompt[0].prompt}
 
     Tasks completed yesterday: ${tasksDone.map((task) => task.title).join(', ')}
 
@@ -76,7 +49,7 @@ Input data:
       messages: [
         {
           role: 'user',
-          content: prompt,
+          content: promptFinal,
         },
       ],
       model: 'gpt-4o-mini',

@@ -14,6 +14,7 @@ import { SprintsModule } from './sprints/sprints.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PromptModule } from './prompt/prompt.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     AiFunctionsModule,
     EmailsModule,
     CloudinaryModule,
+    PromptModule,
   ],
   controllers: [AppController],
   providers: [AppService],
