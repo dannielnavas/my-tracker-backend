@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -21,11 +22,12 @@ export class CreateUserDto {
   readonly full_name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({ description: 'The profile image of the User.' })
   readonly profile_image: string;
 
   @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({ description: 'The role of the User.' })
   readonly role: string;
 
@@ -42,6 +44,14 @@ export class CreateUserDto {
     required: false,
   })
   readonly subscription_plan_id?: number;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Accept the terms and conditions of the User.',
+    required: false,
+  })
+  readonly accept_terms?: boolean;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

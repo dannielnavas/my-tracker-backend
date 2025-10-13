@@ -42,6 +42,11 @@ export class Users {
     length: 255,
   })
   password: string;
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  accept_terms?: boolean;
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',

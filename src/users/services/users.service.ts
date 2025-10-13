@@ -29,8 +29,12 @@ export class UsersService {
     const newUser = this.userRepo.create({
       ...data,
       password: hashPassword,
+      role: 'user',
+      profile_image:
+        data.profile_image ||
+        'https://ui-avatars.com/api/?name=' + data.full_name,
       subscriptionPlan: {
-        subscription_plan_id: data.subscription_plan_id,
+        subscription_plan_id: 1,
       },
     });
     await this.emailsService.sendEmail(
