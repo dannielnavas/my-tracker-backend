@@ -30,9 +30,10 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   app.enableCors({
-    origin: 'https://focusloop.danniel.dev, http://localhost:4200',
+    origin: ['https://focusloop.danniel.dev', 'http://localhost:4200'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
   await app.listen(process.env.PORT ?? 3000);
 }
