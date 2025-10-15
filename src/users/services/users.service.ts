@@ -21,7 +21,9 @@ export class UsersService {
     private emailsService: EmailsService,
   ) {}
   async create(data: CreateUserDto) {
-    const user = await this.findOneByEmail(data.email);
+    const user = await this.userRepo.findOne({
+      where: { email: data.email },
+    });
     if (user) {
       throw new BadRequestException('User already exists');
     }
