@@ -13,6 +13,7 @@ async function bootstrap() {
   ];
 
   // Configuración CORS para orígenes específicos
+
   app.enableCors({
     origin: (origin, callback) => {
       // Permitir peticiones sin origen (como herramientas tipo Postman)
