@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Configuración CORS para permitir peticiones a cualquier endpoint
+
   app.enableCors({
     origin: '*', // Permite todos los orígenes
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
