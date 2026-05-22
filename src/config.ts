@@ -18,5 +18,17 @@ export default registerAs('config', () => {
     jwtSecret: process.env.JWT_SECRET,
     apiOpenAi: process.env.API_OPEN_AI,
     apiKeyResend: process.env.API_KEY_RESEND,
+    cloudinary: {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      apiSecret: process.env.CLOUDINARY_API_SECRET,
+    },
+    stripe: {
+      secretKey: process.env.STRIPE_SECRET_KEY,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+      monthlyPriceId: process.env.STRIPE_MONTHLY_PRICE_ID,
+      lifetimePriceId: process.env.STRIPE_LIFETIME_PRICE_ID,
+      clientUrl: process.env.CLIENT_URL || 'http://localhost:4200',
+    },
   };
 });

@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -11,7 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { Public } from '../../auth/decorators/public.decorator';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
-import { CreateUserDto } from '../dtos/user.dto';
+import { ChangePasswordDto, CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { UsersService } from '../services/users.service';
 
 @ApiTags('Users')
@@ -29,5 +30,25 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() payload: UpdateUserDto,
+  ) {
+    return this.usersService.update(id, payload);
+  }
+
+  @Post(':id/change-password')
+  changePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() payload: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(
+      id,
+      payload.current_password,
+      payload.new_password,
+    );
   }
 }

@@ -71,14 +71,41 @@ export class UsersService {
 
   async update(id: number, data: UpdateUserDto) {
     const user = await this.findOne(id);
-    this.userRepo.update(id, data);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (data.email && data.email !== user.email) {
+      const existing = await this.userRepo.findOne({ where: { email: data.email } });
+      if (existing) {
+        throw new BadRequestException('Email already in use');
+      }
+    }
+
+    const { subscription_plan_id, ...rest } = data;
+
+    if (subscription_plan_id) {
+      user.subscriptionPlan = { subscription_plan_id } as any;
+    }
+
+    this.userRepo.merge(user, rest);
     return this.userRepo.save(user);
   }
 
-  async changePassword(id: number, password: string) {
+  async changePassword(id: number, currentPass: string, newPass: string) {
     const user = await this.findOne(id);
-    const hashPassword = await bcrypt.hashSync(password, 10);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isMatch = await bcrypt.compare(currentPass, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Current password does not match');
+    }
+
+    const hashPassword = await bcrypt.hashSync(newPass, 10);
     user.password = hashPassword;
-    return this.userRepo.save(user);
+    await this.userRepo.save(user);
+    return { message: 'Password changed successfully' };
   }
 }

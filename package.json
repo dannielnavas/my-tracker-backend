@@ -45,6 +45,7 @@
     "resend": "^6.1.0",
     "rimraf": "^6.0.1",
     "rxjs": "^7.8.1",
+    "stripe": "^22.1.1",
     "swagger-ui-dist": "^5.29.5",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.25"
@@ -88,6 +89,9 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

@@ -47,6 +47,23 @@ export class Users {
     default: false,
   })
   accept_terms?: boolean;
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    default: {
+      email_notifications: true,
+      dark_mode: true,
+      task_reminders: true,
+    },
+  })
+  preferences?: Record<string, any>;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  stripe_customer_id?: string;
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',

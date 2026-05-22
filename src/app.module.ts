@@ -15,6 +15,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PromptModule } from './prompt/prompt.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -34,6 +35,14 @@ import { PromptModule } from './prompt/prompt.module';
         POSTGRES_PORT: Joi.number().required(),
         API_OPEN_AI: Joi.string().required(),
         API_KEY_RESEND: Joi.string().required(),
+        CLOUDINARY_CLOUD_NAME: Joi.string().optional(),
+        CLOUDINARY_API_KEY: Joi.string().optional(),
+        CLOUDINARY_API_SECRET: Joi.string().optional(),
+        STRIPE_SECRET_KEY: Joi.string().optional(),
+        STRIPE_WEBHOOK_SECRET: Joi.string().optional(),
+        STRIPE_MONTHLY_PRICE_ID: Joi.string().optional(),
+        STRIPE_LIFETIME_PRICE_ID: Joi.string().optional(),
+        CLIENT_URL: Joi.string().optional(),
       }),
     }),
     DatabaseModule,
@@ -46,6 +55,7 @@ import { PromptModule } from './prompt/prompt.module';
     EmailsModule,
     CloudinaryModule,
     PromptModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

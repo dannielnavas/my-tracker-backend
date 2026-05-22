@@ -1,18 +1,62 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { CreateTaskDto, UpdateTaskDto } from '../dtos/tasks.dto';
 import { Tasks } from '../entities/tasks.entity';
+import { Sprints } from '../../sprints/entities/sprint.entity';
+import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
 
-  constructor(@InjectRepository(Tasks) private tasksRepo: Repository<Tasks>) {}
+  constructor(
+    @InjectRepository(Tasks) private tasksRepo: Repository<Tasks>,
+    @InjectRepository(Sprints) private sprintRepo: Repository<Sprints>,
+    private usersService: UsersService,
+  ) {}
 
   async create(data: CreateTaskDto) {
+    // 1. Get the sprint and the user who owns it
+    const sprint = await this.sprintRepo.findOne({
+      where: { sprint_id: data.sprint_id },
+      relations: ['user'],
+    });
+    if (!sprint) {
+      throw new NotFoundException('Sprint not found');
+    }
+
+    const userId = sprint.user.user_id;
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new NotFoundException('Sprint owner user not found');
+    }
+
+    // 2. Validate Free Plan Limits (max 30 tasks total across all sprints)
+    if (user.subscriptionPlan && user.subscriptionPlan.subscription_plan_id === 1) {
+      const taskCount = await this.tasksRepo
+        .createQueryBuilder('task')
+        .innerJoin('task.sprint', 'sprint')
+        .innerJoin('sprint.user', 'user')
+        .where('user.user_id = :userId', { userId })
+        .getCount();
+
+      if (taskCount >= 30) {
+        throw new ForbiddenException(
+          'Limit of 30 tasks reached for Free plan. Please upgrade your subscription.',
+        );
+      }
+    }
+
+    // 3. Set completion date if status is Completed (3)
+    let date_end = data.date_end;
+    if (data.status_task_id === 3 && !date_end) {
+      date_end = new Date();
+    }
+
     const newTask = this.tasksRepo.create({
       ...data,
+      date_end,
       sprint: { sprint_id: data.sprint_id },
       statusTask: { status_task_id: data.status_task_id },
     });
@@ -35,10 +79,18 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException(`Task ${id} not found`);
     }
+
     this.tasksRepo.merge(task, payload);
+
     if (payload.status_task_id) {
       task.statusTask = { status_task_id: payload.status_task_id } as any;
+      if (payload.status_task_id === 3) {
+        task.date_end = payload.date_end || new Date();
+      } else {
+        task.date_end = payload.date_end || null;
+      }
     }
+
     if (payload.sprint_id) {
       task.sprint = { sprint_id: payload.sprint_id } as any;
     }

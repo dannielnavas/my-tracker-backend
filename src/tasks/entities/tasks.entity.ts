@@ -34,7 +34,7 @@ export class Tasks {
     type: 'timestamptz',
     nullable: true,
   })
-  date_end: Date;
+  date_end: Date | null;
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',

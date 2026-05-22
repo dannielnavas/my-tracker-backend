@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Length,
@@ -52,6 +53,36 @@ export class CreateUserDto {
     required: false,
   })
   readonly accept_terms?: boolean;
+
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Preferences of the user (e.g. notifications, dark mode)',
+    required: false,
+  })
+  readonly preferences?: Record<string, any>;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Stripe Customer ID associated with this user',
+    required: false,
+  })
+  readonly stripe_customer_id?: string;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+export class ChangePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  @Length(6)
+  @ApiProperty({ description: 'Current password' })
+  readonly current_password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(6)
+  @ApiProperty({ description: 'New password' })
+  readonly new_password: string;
+}

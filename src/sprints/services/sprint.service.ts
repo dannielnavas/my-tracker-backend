@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import config from 'src/config';
@@ -6,6 +6,7 @@ import { TasksService } from 'src/tasks/services/tasks.service';
 import { Repository } from 'typeorm';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 import { Sprints } from '../entities/sprint.entity';
+import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
 export class SprintService {
@@ -14,10 +15,29 @@ export class SprintService {
     @InjectRepository(Sprints)
     private sprintRepository: Repository<Sprints>,
     private tasksService: TasksService,
+    private usersService: UsersService,
   ) {}
 
   async create(data: SprintsDto) {
     const { user_id, ...sprintData } = data;
+
+    // Check user's subscription plan limits
+    const user = await this.usersService.findOne(user_id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.subscriptionPlan && user.subscriptionPlan.subscription_plan_id === 1) {
+      const sprintCount = await this.sprintRepository.count({
+        where: { user: { user_id } },
+      });
+      if (sprintCount >= 2) {
+        throw new ForbiddenException(
+          'Limit of 2 sprints reached for Free plan. Please upgrade your subscription.',
+        );
+      }
+    }
+
     const newSprint = this.sprintRepository.create({
       ...sprintData,
       user: { user_id },
@@ -30,7 +50,10 @@ export class SprintService {
   }
 
   async findOne(id: number) {
-    return this.sprintRepository.findOne({ where: { sprint_id: id } });
+    return this.sprintRepository.findOne({
+      where: { sprint_id: id },
+      relations: ['user'],
+    });
   }
 
   async update(id: number, changes: UpdateSprintDto) {
