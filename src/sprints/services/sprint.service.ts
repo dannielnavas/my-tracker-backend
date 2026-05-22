@@ -98,7 +98,7 @@ export class SprintService {
         // Ordenar manualmente si el ORM no soporta CASE
         return sprints
           .sort((a, b) => {
-            return a.start_date.getTime() - b.start_date.getTime();
+            return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
           })
           .filter((sprint) => sprint.status !== 'completed')
           .splice(0, 5);
