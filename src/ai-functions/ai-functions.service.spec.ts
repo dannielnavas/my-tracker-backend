@@ -55,13 +55,14 @@ describe('AiFunctionsService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should return mock report directly for premium users (plan 2)', async () => {
+  it('should return mock report for premium users (plan 2) if api key is not set or mock', async () => {
+    // All plans use the real LLM path; mock only when no provider is usable.
     sprintRepository.findOne.mockResolvedValue({
       sprint_id: 1,
       user: {
         user_id: 10,
         subscriptionPlan: {
-          subscription_plan_id: 2, // Premium
+          subscription_plan_id: 2, // Premium / Monthly
         },
       },
     });
@@ -72,7 +73,10 @@ describe('AiFunctionsService', () => {
     });
 
     expect(result.role).toBe('assistant');
-    expect(result.content).toContain('restricted to the Free Plan');
+    expect(result.content).toContain(
+      'because the Gemini API Key is not configured',
+    );
+    expect(result.content).not.toContain('restricted to the Free Plan');
   });
 
   it('should return mock report for free users (plan 1) if api key is not set or mock', async () => {

@@ -254,9 +254,6 @@ ${todayList}
       request.sprint_id,
     );
 
-    const user = (sprint as any).user;
-    const isFreePlan = user?.subscriptionPlan?.subscription_plan_id === 1;
-
     const maxPromptChars = this.configService?.ai?.maxPromptChars ?? 8000;
     const maxContentChars = this.configService?.ai?.maxContentChars ?? 8000;
 
@@ -275,15 +272,7 @@ ${todayList}
             .join('\n')
         : '- No tasks in progress planned for today.';
 
-    // Product rule kept from earlier iteration: real LLM only for Free plan; others get mock.
-    if (!isFreePlan) {
-      return this.buildMockReport(
-        parsedDate,
-        completedList,
-        todayList,
-        'This report was automatically generated in mock mode because the daily report AI function is restricted to the Free Plan.',
-      );
-    }
+    // All plans can use the real LLM (free-only model policy above).
 
     const resolved = this.resolveAiClient();
     if (!resolved) {
