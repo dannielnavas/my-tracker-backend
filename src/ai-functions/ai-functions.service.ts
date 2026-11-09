@@ -309,6 +309,10 @@ Tasks for today: ${tasksToday.map((t) => t.title).join(', ')}`;
     const maxTokens = this.configService?.ai?.maxTokens ?? 800;
     const timeoutMs = this.configService?.ai?.timeoutMs ?? 15_000;
 
+    this.logger.log(
+      `Generating report with ${resolved.provider}/${modelName} (prompt ${promptFinal.length} chars, max_tokens ${maxTokens})`,
+    );
+
     try {
       const completion = await this.withTimeout(
         openaiClient.chat.completions.create({
@@ -356,11 +360,35 @@ Tasks for today: ${tasksToday.map((t) => t.title).join(', ')}`;
           refusal: 'AI request timed out, please try again',
         } as ChatCompletionMessage;
       }
-      this.logger.error('AI generation failed', err);
+
+      const status = err?.status ?? err?.statusCode ?? err?.response?.status;
+      const apiMessage: string =
+        err?.error?.message ?? err?.message ?? 'unknown error';
+      this.logger.error(
+        `AI generation failed [status=${status ?? 'unknown'}] provider=${resolved.provider} model=${modelName}: ${apiMessage}`,
+        err?.stack ?? err,
+      );
+
+      // Map common OpenRouter/OpenAI failures to an actionable message.
+      // Generic fallback still includes the short detail so the frontend
+      // shows the cause instead of an opaque string.
+      let detail = '';
+      if (status === 401 || status === 403) {
+        detail = 'invalid or unauthorized API key';
+      } else if (status === 404) {
+        detail = `model "${modelName}" not found — check OPENROUTER_MODEL is a free model (:free or openrouter/free)`;
+      } else if (status === 429) {
+        detail = 'rate limit exceeded (free models are rate-limited, retry shortly)';
+      } else if (status === 402) {
+        detail = 'insufficient credits / model is not free';
+      } else if (apiMessage && apiMessage !== 'unknown error') {
+        detail = apiMessage.slice(0, 200);
+      }
+
       return {
         role: 'assistant',
         content: null,
-        refusal: 'AI generation failed, please try again',
+        refusal: `AI generation failed, please try again${detail ? ` (${detail})` : ''}`,
       } as ChatCompletionMessage;
     }
   }
