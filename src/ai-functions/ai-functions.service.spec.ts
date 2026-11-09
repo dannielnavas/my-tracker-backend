@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiFunctionsService } from './ai-functions.service';
-import config from 'src/config';
-import { TasksService } from 'src/tasks/services/tasks.service';
-import { PromptService } from 'src/prompt/service/prompt.service';
+import config from '../config';
+import { TasksService } from '../tasks/services/tasks.service';
+import { PromptService } from '../prompt/service/prompt.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Sprints } from 'src/sprints/entities/sprint.entity';
+import { Sprints } from '../sprints/entities/sprint.entity';
 
 describe('AiFunctionsService', () => {
   let service: AiFunctionsService;

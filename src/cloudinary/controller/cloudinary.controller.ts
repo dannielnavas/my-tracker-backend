@@ -12,10 +12,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
 import { Optional, UseGuards } from '@nestjs/common';
-import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
-import { UsersService } from 'src/users/services/users.service';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
+import { UsersService } from '../../users/services/users.service';
 import { CloudinaryService } from '../service/cloudinary.service';
 
 @Controller('cloudinary')

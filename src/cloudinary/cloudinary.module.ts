@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 import { CloudinaryProvider } from './cloudinary.provider';
 import { CloudinaryController } from './controller/cloudinary.controller';
 import { CloudinaryService } from './service/cloudinary.service';

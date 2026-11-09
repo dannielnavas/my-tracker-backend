@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
 import {
   getRequestRole,
   getRequestUserId,
-} from 'src/common/decorators/current-user.decorator';
+} from '../../common/decorators/current-user.decorator';
 import {
   ChangePasswordDto,
   CreateUserDto,

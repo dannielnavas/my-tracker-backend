@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SprintService } from './sprint.service';
-import config from 'src/config';
+import config from '../../config';
 import { Sprints } from '../entities/sprint.entity';
-import { TasksService } from 'src/tasks/services/tasks.service';
-import { UsersService } from 'src/users/services/users.service';
+import { TasksService } from '../../tasks/services/tasks.service';
+import { UsersService } from '../../users/services/users.service';
 
 describe('SprintService', () => {
   let service: SprintService;

@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { EmailsModule } from 'src/emails/emails.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { EmailsModule } from '../emails/emails.module';
 import { UsersController } from './controllers/users.controller';
 import { SubscriptionPlans } from './entities/subscriptionPlans';
 import { Users } from './entities/user.entity';

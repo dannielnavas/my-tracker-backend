@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlanLimitedException } from 'src/common/exceptions/plan-limited.exception';
-import config from 'src/config';
-import { TasksService } from 'src/tasks/services/tasks.service';
+import { PlanLimitedException } from '../../common/exceptions/plan-limited.exception';
+import config from '../../config';
+import { TasksService } from '../../tasks/services/tasks.service';
 import { Repository } from 'typeorm';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 import { Sprints } from '../entities/sprint.entity';
-import { UsersService } from 'src/users/services/users.service';
+import { UsersService } from '../../users/services/users.service';
 
 const FREE_SPRINT_LIMIT = 2;
 

@@ -7,7 +7,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { PlanLimitedException } from 'src/common/exceptions/plan-limited.exception';
+import { PlanLimitedException } from '../../common/exceptions/plan-limited.exception';
 import { Between, DataSource, Repository } from 'typeorm';
 import {
   CreateTaskDto,

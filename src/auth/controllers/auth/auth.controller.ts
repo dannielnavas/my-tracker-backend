@@ -11,7 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
+import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { Users } from '../../../users/entities/user.entity';
 import { ChangePasswordDto, RefreshTokenDto } from '../../dtos/auth.dto';
 import { Public } from '../../decorators/public.decorator';

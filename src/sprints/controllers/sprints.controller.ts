@@ -13,13 +13,13 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
 import {
   getRequestRole,
   getRequestUserId,
-} from 'src/common/decorators/current-user.decorator';
-import { paginate } from 'src/common/utils/pagination';
+} from '../../common/decorators/current-user.decorator';
+import { paginate } from '../../common/utils/pagination';
 import { SprintService } from '../services/sprint.service';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 

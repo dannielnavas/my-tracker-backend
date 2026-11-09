@@ -9,8 +9,8 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { CloudinaryService } from 'src/cloudinary/service/cloudinary.service';
-import { EmailsService } from 'src/emails/services/emails.service';
+import { CloudinaryService } from '../../cloudinary/service/cloudinary.service';
+import { EmailsService } from '../../emails/services/emails.service';
 import { Repository } from 'typeorm';
 import config from '../../config';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';

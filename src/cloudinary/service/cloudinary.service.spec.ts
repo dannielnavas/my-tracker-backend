@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CloudinaryService } from './cloudinary.service';
-import { UsersService } from 'src/users/services/users.service';
+import { UsersService } from '../../users/services/users.service';
 
 describe('CloudinaryService', () => {
   let service: CloudinaryService;

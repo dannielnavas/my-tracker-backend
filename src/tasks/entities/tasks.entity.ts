@@ -1,4 +1,4 @@
-import { Sprints } from 'src/sprints/entities/sprint.entity';
+import { Sprints } from '../../sprints/entities/sprint.entity';
 import {
   Column,
   CreateDateColumn,

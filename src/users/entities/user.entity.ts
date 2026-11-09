@@ -1,5 +1,5 @@
-import { Settings } from 'src/settings/entities/settings.entity';
-import { Sprints } from 'src/sprints/entities/sprint.entity';
+import { Settings } from '../../settings/entities/settings.entity';
+import { Sprints } from '../../sprints/entities/sprint.entity';
 import {
   Column,
   CreateDateColumn,

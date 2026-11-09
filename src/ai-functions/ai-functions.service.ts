@@ -7,18 +7,18 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { RateLimitedException } from 'src/common/exceptions/rate-limited.exception';
+import { RateLimitedException } from '../common/exceptions/rate-limited.exception';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { sanitizeMarkdown } from 'src/common/utils/markdown-sanitizer';
+import { sanitizeMarkdown } from '../common/utils/markdown-sanitizer';
 import OpenAI from 'openai';
 import { ChatCompletionMessage } from 'openai/resources/chat/completions';
-import config from 'src/config';
-import { PromptService } from 'src/prompt/service/prompt.service';
-import { TasksService } from 'src/tasks/services/tasks.service';
+import config from '../config';
+import { PromptService } from '../prompt/service/prompt.service';
+import { TasksService } from '../tasks/services/tasks.service';
 import { MoreThan, Repository } from 'typeorm';
-import { Sprints } from 'src/sprints/entities/sprint.entity';
+import { Sprints } from '../sprints/entities/sprint.entity';
 import { AiUsageLog } from './entities/ai-usage-log.entity';
 
 export class OpenAIRequestDto {
