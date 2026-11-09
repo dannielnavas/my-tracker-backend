@@ -7,6 +7,7 @@ import { SubscriptionPlans } from '../users/entities/subscriptionPlans';
 import { StatusTasks } from '../tasks/entities/statusTasks.entity';
 import { Prompt } from '../prompt/entities/prompt.entity';
 import { SeedService } from './seed.service';
+import { repairNullsBeforeSync } from './pre-sync-repair';
 
 const API_KEY = config().apiKey;
 const API_KEY_PROD = config().apiKeyProd;
@@ -14,9 +15,23 @@ const API_KEY_PROD = config().apiKeyProd;
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigType<typeof config>) => {
+      useFactory: async (configService: ConfigType<typeof config>) => {
         const { username, host, database, password, port } =
           configService.postgres;
+        // Repair legacy NULLs BEFORE synchronize (seed runs too late, after
+        // DataSource init). Without this, synchronize crashes with
+        // "column name contains null values" in any env.
+        await repairNullsBeforeSync({
+          host: host as string,
+          port: port as number,
+          username: username as string,
+          password: password as string,
+          database: database as string,
+        });
+        // Vercel also exposes VERCEL_ENV=production; honor both signals.
+        const isProd =
+          ['prod', 'production'].includes(process.env.NODE_ENV ?? '') ||
+          process.env.VERCEL_ENV === 'production';
         return {
           type: 'postgres',
           host,
@@ -24,10 +39,7 @@ const API_KEY_PROD = config().apiKeyProd;
           username,
           password,
           database,
-          synchronize: !['prod', 'production'].includes(
-            process.env.NODE_ENV ?? '',
-          ), // auto-sync solo fuera de prod (en prod el seed repara datos; en prod synchronize crashea con columnas NOT NULL con NULLs)
-          //sunchronize: false, // en producción
+          synchronize: !isProd, // auto-sync fuera de prod; en prod el modelo es "sin migraciones" para evitar races en serverless
           autoLoadEntities: true,
           ssl: {
             rejectUnauthorized: false,
