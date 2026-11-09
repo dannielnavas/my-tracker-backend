@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,9 +13,11 @@ import { Users } from './user.entity';
 export class SubscriptionPlans {
   @PrimaryGeneratedColumn()
   subscription_plan_id: number;
+  @Index({ unique: true })
   @Column({
     type: 'varchar',
-    length: 255,
+    length: 50,
+    unique: true,
   })
   name: string;
   @Column({

@@ -1,6 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ChatCompletionMessage } from 'openai/resources/index';
+import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
 import { AiFunctionsService, OpenAIRequestDto } from './ai-functions.service';
 
@@ -13,7 +14,8 @@ export class AiFunctionsController {
   @Post('generate')
   async generateResponse(
     @Body() request: OpenAIRequestDto,
+    @CurrentUserId() userId: number,
   ): Promise<ChatCompletionMessage> {
-    return this.aiFunctionsService.chatCompletion(request);
+    return this.aiFunctionsService.chatCompletion(request, userId);
   }
 }

@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -14,12 +15,15 @@ import {
 import { SubscriptionPlans } from './subscriptionPlans';
 
 @Entity()
+@Index('IDX_USERS_EMAIL', ['email'], { unique: true })
+@Index(['stripe_customer_id'])
 export class Users {
   @PrimaryGeneratedColumn()
   user_id: number;
   @Column({
     type: 'varchar',
     length: 255,
+    unique: true,
   })
   email: string;
   @Column({
@@ -28,8 +32,8 @@ export class Users {
   })
   full_name: string;
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'text',
+    nullable: true,
   })
   profile_image: string;
   @Column({

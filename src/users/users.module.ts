@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { EmailsModule } from 'src/emails/emails.module';
 import { UsersController } from './controllers/users.controller';
 import { SubscriptionPlans } from './entities/subscriptionPlans';
@@ -7,7 +8,11 @@ import { Users } from './entities/user.entity';
 import { UsersService } from './services/users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, SubscriptionPlans]), EmailsModule],
+  imports: [
+    TypeOrmModule.forFeature([Users, SubscriptionPlans]),
+    EmailsModule,
+    forwardRef(() => CloudinaryModule),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -13,18 +13,23 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      // OBTENDREMOS EL TOKEN LOS HEADERS COMO 'Bearer token'
       ignoreExpiration: false,
-      // IGNORA LA EXPIRACION, EN TU CASO EL TIEMPO QUE LE HAYAS PUESTO
-      // EJE.  signOptions: { expiresIn: '24h' }, YO LE PUSE 1 DIA
       secretOrKey: configService.jwtSecret!,
-      // LA LLAVE SECRETA CON LA QUE FIRMAMOS EL TOKEN AL HACER LOGIN
     });
   }
 
-  // ESTA FUNCION LO QUE HARA SERA RECIBIR EL TOKEN DECODIFICADO
-  // CON LA CARGA DE DATOS QUE LE PUSIMOS AL HACER LOGIN
   validate(payload: Token) {
+    // exp is mandatory — reject tokens without expiry.
+    if (!payload || typeof payload.sub !== 'number') {
+      throw new UnauthorizedException('Invalid token payload');
+    }
+    if (typeof payload.exp !== 'number' || payload.exp <= 0) {
+      throw new UnauthorizedException('Token missing expiry');
+    }
+    const nowSec = Math.floor(Date.now() / 1000);
+    if (payload.exp <= nowSec) {
+      throw new UnauthorizedException('Token expired');
+    }
     return payload;
   }
 }

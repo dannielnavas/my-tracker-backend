@@ -12,17 +12,26 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth/jwt-auth.guard';
+import { Optional, UseGuards } from '@nestjs/common';
+import { CurrentUserId } from 'src/common/decorators/current-user.decorator';
+import { UsersService } from 'src/users/services/users.service';
 import { CloudinaryService } from '../service/cloudinary.service';
 
 @Controller('cloudinary')
+@UseGuards(JwtAuthGuard)
 export class CloudinaryController {
-  constructor(private cloudinary: CloudinaryService) {}
+  constructor(
+    private cloudinary: CloudinaryService,
+    @Optional() private usersService?: UsersService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('userId') userId: string,
+    @CurrentUserId() requesterUserId: number,
   ) {
     if (!file) {
       throw new BadRequestException('No se ha proporcionado ningún archivo.');
@@ -30,6 +39,12 @@ export class CloudinaryController {
 
     if (!userId) {
       throw new BadRequestException('El userId es requerido.');
+    }
+    if (Number(userId) !== requesterUserId) {
+      throw new HttpException(
+        { code: 'FORBIDDEN', message: 'Cannot upload image for another user' },
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const allowedMimeTypes = [
@@ -53,6 +68,12 @@ export class CloudinaryController {
 
     try {
       const result = await this.cloudinary.uploadImage(file, userId);
+      // Preserve pre-refactor side effect: avatar upload persists to the user profile.
+      if (this.usersService) {
+        await this.usersService.update(Number(userId), {
+          profile_image: result.secure_url as string,
+        } as any);
+      }
 
       return {
         success: true,

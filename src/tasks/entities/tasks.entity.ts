@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -11,7 +12,11 @@ import {
 import { StatusTasks } from './statusTasks.entity';
 
 @Entity()
+@Index(['sprint', 'position'])
+@Index(['sprint', 'statusTask'])
 export class Tasks {
+  // tasks.sprint_id, tasks.status_task_id are indexed via @Index() on relations below
+
   @PrimaryGeneratedColumn()
   task_id: number;
   @Column({
@@ -48,12 +53,14 @@ export class Tasks {
   })
   updated_at: Date;
 
+  @Index()
   @ManyToOne(() => StatusTasks, (statusTasks) => statusTasks.tasks, {
     nullable: true,
   })
   @JoinColumn({ name: 'status_task_id' })
   statusTask: StatusTasks;
 
+  @Index()
   @ManyToOne(() => Sprints, (sprint) => sprint.tasks)
   sprint: Sprints;
 }

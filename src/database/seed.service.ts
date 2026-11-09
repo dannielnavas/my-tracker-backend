@@ -32,55 +32,57 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async seedSubscriptionPlans() {
-    const count = await this.planRepo.count();
-    if (count === 0) {
-      this.logger.log('Seeding initial subscription plans...');
-      const plans = [
-        {
-          subscription_plan_id: 1,
-          name: 'free',
-          price: 0.00,
-          description: 'Plan Gratuito: Límite de 2 sprints y 30 tareas.',
-        },
-        {
-          subscription_plan_id: 2,
-          name: 'monthly',
-          price: 5.99,
-          description: 'Plan Mensual: Sprints y tareas ilimitadas.',
-        },
-        {
-          subscription_plan_id: 3,
-          name: 'lifetime',
-          price: 59.00,
-          description: 'Plan de por vida: Acceso total permanente.',
-        },
-      ];
-
-      for (const plan of plans) {
+    // Idempotent per-id upsert (DDL section 5 seeds) — safe if table partially filled.
+    const plans = [
+      {
+        subscription_plan_id: 1,
+        name: 'free',
+        price: 0.0,
+        description: 'Plan Gratuito: Límite de 2 sprints y 30 tareas.',
+      },
+      {
+        subscription_plan_id: 2,
+        name: 'monthly',
+        price: 5.99,
+        description: 'Plan Mensual: Sprints y tareas ilimitadas.',
+      },
+      {
+        subscription_plan_id: 3,
+        name: 'lifetime',
+        price: 59.0,
+        description: 'Plan de por vida: Acceso total permanente.',
+      },
+    ];
+    for (const plan of plans) {
+      const existing = await this.planRepo.findOne({
+        where: { subscription_plan_id: plan.subscription_plan_id },
+      });
+      if (!existing) {
         await this.planRepo.save(plan);
+        this.logger.log(
+          `Seeded subscription plan ${plan.subscription_plan_id} (${plan.name})`,
+        );
       }
-      this.logger.log('Subscription plans seeded successfully.');
-    } else {
-      this.logger.log('Subscription plans table already seeded.');
     }
   }
 
   private async seedStatusTasks() {
-    const count = await this.statusRepo.count();
-    if (count === 0) {
-      this.logger.log('Seeding mandatory task statuses...');
-      const statuses = [
-        { status_task_id: 1, name: 'Pending' },
-        { status_task_id: 2, name: 'In Progress' },
-        { status_task_id: 3, name: 'Completed' },
-      ];
-
-      for (const status of statuses) {
+    // Sacred IDs: 1=Pending, 2=In Progress, 3=Completed
+    const statuses = [
+      { status_task_id: 1, name: 'Pending' },
+      { status_task_id: 2, name: 'In Progress' },
+      { status_task_id: 3, name: 'Completed' },
+    ];
+    for (const status of statuses) {
+      const existing = await this.statusRepo.findOne({
+        where: { status_task_id: status.status_task_id },
+      });
+      if (!existing) {
         await this.statusRepo.save(status);
+        this.logger.log(
+          `Seeded task status ${status.status_task_id} (${status.name})`,
+        );
       }
-      this.logger.log('Task statuses seeded successfully.');
-    } else {
-      this.logger.log('Task statuses already seeded.');
     }
   }
 
@@ -93,8 +95,6 @@ export class SeedService implements OnApplicationBootstrap {
       });
       await this.promptRepo.save(defaultPrompt);
       this.logger.log('Default AI prompt seeded successfully.');
-    } else {
-      this.logger.log('AI prompt table already seeded.');
     }
   }
 }

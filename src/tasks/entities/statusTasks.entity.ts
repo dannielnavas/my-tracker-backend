@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,9 +13,11 @@ import { Tasks } from './tasks.entity';
 export class StatusTasks {
   @PrimaryGeneratedColumn()
   status_task_id: number;
+  @Index({ unique: true })
   @Column({
     type: 'varchar',
-    length: 255,
+    length: 50,
+    unique: true,
   })
   name: string;
 

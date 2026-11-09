@@ -3,6 +3,7 @@ import { Users } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -10,6 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity()
+@Index(['status'])
 export class Sprints {
   @PrimaryGeneratedColumn()
   sprint_id: number;
@@ -41,6 +43,7 @@ export class Sprints {
   @OneToMany(() => Tasks, (task) => task.sprint)
   tasks: Tasks[];
 
+  @Index()
   @ManyToOne(() => Users, (user) => user.sprints, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: Users;

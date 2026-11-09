@@ -1,12 +1,20 @@
-import { Inject, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PlanLimitedException } from 'src/common/exceptions/plan-limited.exception';
 import config from 'src/config';
 import { TasksService } from 'src/tasks/services/tasks.service';
 import { Repository } from 'typeorm';
 import { SprintsDto, UpdateSprintDto } from '../dtos/sprint.dto';
 import { Sprints } from '../entities/sprint.entity';
 import { UsersService } from 'src/users/services/users.service';
+
+const FREE_SPRINT_LIMIT = 2;
 
 @Injectable()
 export class SprintService {
@@ -18,23 +26,33 @@ export class SprintService {
     private usersService: UsersService,
   ) {}
 
-  async create(data: SprintsDto) {
-    const { user_id, ...sprintData } = data;
+  /**
+   * Create sprint for token user. data.user_id (if sent by frontend) is IGNORED.
+   * @param requesterUserId from JWT payload (sub)
+   */
+  async create(data: SprintsDto, requesterUserId?: number) {
+    const user_id = requesterUserId ?? data.user_id;
+    if (!user_id) {
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'User identity required',
+      });
+    }
+    const { user_id: _ignored, task_id: _taskId, ...sprintData } = data as any;
+    void _ignored;
+    void _taskId;
 
-    // Check user's subscription plan limits
     const user = await this.usersService.findOne(user_id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    if (user.subscriptionPlan && user.subscriptionPlan.subscription_plan_id === 1) {
+    if (user.subscriptionPlan?.subscription_plan_id === 1) {
       const sprintCount = await this.sprintRepository.count({
         where: { user: { user_id } },
       });
-      if (sprintCount >= 2) {
-        throw new ForbiddenException(
-          'Limit of 2 sprints reached for Free plan. Please upgrade your subscription.',
-        );
+      if (sprintCount >= FREE_SPRINT_LIMIT) {
+        throw new PlanLimitedException('sprints', FREE_SPRINT_LIMIT);
       }
     }
 
@@ -45,7 +63,12 @@ export class SprintService {
     return this.sprintRepository.save(newSprint);
   }
 
-  async findAll() {
+  async findAll(requesterUserId?: number) {
+    if (requesterUserId !== undefined) {
+      return this.sprintRepository.find({
+        where: { user: { user_id: requesterUserId } },
+      });
+    }
     return this.sprintRepository.find();
   }
 
@@ -56,52 +79,76 @@ export class SprintService {
     });
   }
 
-  async update(id: number, changes: UpdateSprintDto) {
+  private assertOwnsSprint(
+    sprint: Sprints,
+    requesterUserId?: number,
+    role?: string,
+  ) {
+    if (requesterUserId === undefined) return;
+    if (role === 'admin') return;
+    const ownerId = (sprint as any).user?.user_id;
+    if (ownerId !== undefined && ownerId !== requesterUserId) {
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'Not the sprint owner',
+      });
+    }
+  }
+
+  async update(
+    id: number,
+    changes: UpdateSprintDto,
+    requesterUserId?: number,
+    role?: string,
+  ) {
     const sprint = await this.findOne(id);
     if (!sprint) {
       throw new NotFoundException('Sprint not found');
     }
+    this.assertOwnsSprint(sprint, requesterUserId, role);
 
-    const { user_id, ...sprintChanges } = changes;
-    const updateData = { ...sprintChanges };
-
-    if (user_id) {
-      updateData['user'] = { user_id };
-    }
-
-    this.sprintRepository.merge(sprint, updateData);
+    // user_id from client is always ignored (owner = token user, immutable here).
+    const { user_id: _u, task_id: _t, ...sprintChanges } = changes as any;
+    void _u;
+    void _t;
+    this.sprintRepository.merge(sprint, sprintChanges);
     return this.sprintRepository.save(sprint);
   }
 
-  async delete(id: number) {
+  async delete(id: number, requesterUserId?: number, role?: string) {
     const sprint = await this.findOne(id);
     if (!sprint) {
       throw new NotFoundException('Sprint not found');
     }
+    this.assertOwnsSprint(sprint, requesterUserId, role);
     return this.sprintRepository.delete(id);
   }
 
-  async findByUserId(userId: number) {
+  async findByUserId(userId: number, requesterUserId?: number, role?: string) {
+    if (
+      requesterUserId !== undefined &&
+      role !== 'admin' &&
+      userId !== requesterUserId
+    ) {
+      throw new ForbiddenException({
+        code: 'FORBIDDEN',
+        message: 'Cannot list another user sprints',
+      });
+    }
     const sprints = await this.sprintRepository
       .find({
         where: { user: { user_id: userId } },
-        order: {
-          status: {
-            direction: 'ASC',
-            // Usamos un CASE para que 'activate' sea primero
-            // Esto depende del soporte de la base de datos y TypeORM
-            // Si no soporta directamente, se puede usar queryBuilder
-          },
-        },
       })
       .then((sprints) => {
-        // Ordenar manualmente si el ORM no soporta CASE
         return sprints
           .sort((a, b) => {
-            return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+            return (
+              new Date(a.start_date).getTime() -
+              new Date(b.start_date).getTime()
+            );
           })
           .filter((sprint) => sprint.status !== 'completed')
-          .splice(0, 5);
+          .slice(0, 5);
       });
     const sprintsWithTasks = await Promise.all(
       sprints.map(async (sprint) => {
@@ -123,13 +170,28 @@ export class SprintService {
     return sprintsWithTasks;
   }
 
-  async findByTaskId(taskId: number) {
-    return this.sprintRepository.find({
+  async findByTaskId(taskId: number, requesterUserId?: number) {
+    const sprints = await this.sprintRepository.find({
       where: { tasks: { task_id: taskId } },
+      relations: ['user'],
     });
+    if (requesterUserId !== undefined) {
+      const owned = sprints.filter(
+        (s: any) => s.user?.user_id === requesterUserId,
+      );
+      // If none owned, hide existence with 404 for generic callers
+      if (owned.length === 0) throw new NotFoundException('Sprint not found');
+      return owned;
+    }
+    return sprints;
   }
 
-  async findByStatus(status: string) {
+  async findByStatus(status: string, requesterUserId?: number) {
+    if (requesterUserId !== undefined) {
+      return this.sprintRepository.find({
+        where: { status, user: { user_id: requesterUserId } },
+      });
+    }
     return this.sprintRepository.find({ where: { status } });
   }
 }

@@ -2,11 +2,14 @@ import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDate,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
+
+export const SPRINT_STATUSES = ['active', 'completed', 'planned'] as const;
 
 export class SprintsDto {
   @IsString()
@@ -30,8 +33,12 @@ export class SprintsDto {
   readonly end_date: Date;
 
   @IsString()
+  @IsIn(SPRINT_STATUSES)
   @IsNotEmpty()
-  @ApiProperty({ description: 'The status of the Sprint.' })
+  @ApiProperty({
+    description: 'The status of the Sprint.',
+    enum: SPRINT_STATUSES,
+  })
   readonly status: string;
 
   @IsNumber()
@@ -39,10 +46,15 @@ export class SprintsDto {
   @ApiProperty({ description: 'The task id of the Sprint.', required: false })
   readonly task_id?: number;
 
+  // Kept so the frontend payload doesn't trip forbidNonWhitelisted; IGNORED — owner is token user_id.
   @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'The user id of the Sprint.' })
-  readonly user_id: number;
+  @IsOptional()
+  @ApiProperty({
+    description: 'IGNORED — owner is taken from the JWT token.',
+    required: false,
+    deprecated: true,
+  })
+  readonly user_id?: number;
 }
 
 export class UpdateSprintDto extends PartialType(SprintsDto) {}

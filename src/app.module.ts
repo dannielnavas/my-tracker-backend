@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AiFunctionsModule } from './ai-functions/ai-functions.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ErrorEnvelopeFilter } from './common/filters/error-envelope.filter';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 import config from './config';
 import { DatabaseModule } from './database/database.module';
 import { EmailsModule } from './emails/emails.module';
@@ -43,6 +46,22 @@ import { PaymentsModule } from './payments/payments.module';
         STRIPE_MONTHLY_PRICE_ID: Joi.string().optional(),
         STRIPE_LIFETIME_PRICE_ID: Joi.string().optional(),
         CLIENT_URL: Joi.string().optional(),
+        CORS_ORIGINS: Joi.string().optional(),
+        JWT_ACCESS_EXPIRES_IN: Joi.string().optional(),
+        JWT_REFRESH_TTL_DAYS: Joi.number().optional(),
+        AI_TIMEOUT_MS: Joi.number().optional(),
+        AI_MAX_TOKENS: Joi.number().optional(),
+        AI_MAX_PROMPT_CHARS: Joi.number().optional(),
+        AI_MAX_CONTENT_CHARS: Joi.number().optional(),
+        AI_DAILY_LIMIT: Joi.number().optional(),
+        AI_PROVIDER: Joi.string()
+          .valid('auto', 'openai', 'gemini', 'openrouter', 'mock')
+          .optional(),
+        OPENROUTER_API_KEY: Joi.string().optional(),
+        OPENROUTER_MODEL: Joi.string().optional(),
+        OPENROUTER_BASE_URL: Joi.string().optional(),
+        OPENROUTER_SITE_URL: Joi.string().optional(),
+        OPENROUTER_APP_TITLE: Joi.string().optional(),
       }),
     }),
     DatabaseModule,
@@ -58,6 +77,10 @@ import { PaymentsModule } from './payments/payments.module';
     PaymentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_FILTER, useClass: ErrorEnvelopeFilter },
+    { provide: APP_GUARD, useClass: RateLimitGuard },
+  ],
 })
 export class AppModule {}

@@ -92,6 +92,8 @@ describe('AiFunctionsService', () => {
     });
 
     expect(result.role).toBe('assistant');
-    expect(result.content).toContain('because the Gemini API Key is not configured');
+    expect(result.content).toContain(
+      'because the Gemini API Key is not configured',
+    );
   });
 });
