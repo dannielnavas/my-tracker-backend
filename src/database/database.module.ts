@@ -8,6 +8,7 @@ import { StatusTasks } from '../tasks/entities/statusTasks.entity';
 import { Prompt } from '../prompt/entities/prompt.entity';
 import { SeedService } from './seed.service';
 import { repairNullsBeforeSync } from './pre-sync-repair';
+import { ensureMissingTablesBeforeInit } from './ensure-missing-tables';
 
 const API_KEY = config().apiKey;
 const API_KEY_PROD = config().apiKeyProd;
@@ -18,16 +19,22 @@ const API_KEY_PROD = config().apiKeyProd;
       useFactory: async (configService: ConfigType<typeof config>) => {
         const { username, host, database, password, port } =
           configService.postgres;
-        // Repair legacy NULLs BEFORE synchronize (seed runs too late, after
-        // DataSource init). Without this, synchronize crashes with
-        // "column name contains null values" in any env.
-        await repairNullsBeforeSync({
+        // Build the raw pg config once (TypeORM pool opens after this).
+        const pgCfg = {
           host: host as string,
           port: port as number,
           username: username as string,
           password: password as string,
           database: database as string,
-        });
+        };
+        // Create refresh_tokens / stripe_events / ai_usage_logs if missing.
+        // synchronize is false in prod (serverless race), so without this
+        // those entities 42P01 on first use after deploy.
+        await ensureMissingTablesBeforeInit(pgCfg);
+        // Repair legacy NULLs BEFORE synchronize (seed runs too late, after
+        // DataSource init). Without this, synchronize crashes with
+        // "column name contains null values" in any env.
+        await repairNullsBeforeSync(pgCfg);
         // Vercel also exposes VERCEL_ENV=production; honor both signals.
         const isProd =
           ['prod', 'production'].includes(process.env.NODE_ENV ?? '') ||
