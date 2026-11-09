@@ -13,13 +13,13 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
 import {
   getRequestRole,
   getRequestUserId,
 } from '../../common/decorators/current-user.decorator';
 import { paginate } from '../../common/utils/pagination';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth/jwt-auth.guard';
+import { ListTasksQueryDto } from '../dtos/list-tasks-query.dto';
 import {
   CreateTaskDto,
   ReorderTasksDto,
@@ -49,18 +49,14 @@ export class TasksController {
     summary: 'List tasks for a sprint (?sprint_id=&page=&limit=)',
   })
   @Get()
-  getAllTasksForSprint(
-    @Query('sprint_id', ParseIntPipe) sprintId: number,
-    @Query() pagination: PaginationDto,
-    @Req() req: Request,
-  ) {
+  getAllTasksForSprint(@Query() query: ListTasksQueryDto, @Req() req: Request) {
     return this.tasksService
       .getAllTasksForSprint(
-        sprintId,
+        query.sprint_id,
         getRequestUserId(req),
         getRequestRole(req),
       )
-      .then((items) => paginate(items, pagination));
+      .then((items) => paginate(items, query));
   }
 
   // Must be declared BEFORE @Patch(':id') so /tasks/reorder isn't captured as id.
