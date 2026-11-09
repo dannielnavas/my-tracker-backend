@@ -34,6 +34,19 @@ export class OpenAIRequestDto {
 const FALLBACK_PROMPT =
   'You are an AI assistant helping a software team with their daily updates. Please generate a daily progress report (in markdown format) summarizing what was achieved yesterday (tasks completed) and what is planned for today.';
 
+/**
+ * Free-only policy for OpenRouter: only the free router alias or an
+ * explicit `:free` model is ever called, so a paid model id can never
+ * be charged by mistake.
+ */
+export const DEFAULT_FREE_OPENROUTER_MODEL = 'openrouter/free';
+
+export function isFreeOpenRouterModel(model: string | undefined | null): boolean {
+  if (!model) return false;
+  const m = model.trim();
+  return m === 'openrouter/free' || m.endsWith(':free');
+}
+
 @Injectable()
 export class AiFunctionsService {
   private readonly logger = new Logger(AiFunctionsService.name);
@@ -59,6 +72,7 @@ export class AiFunctionsService {
    * Resolve which provider to call.
    * - AI_PROVIDER=openrouter|openai|gemini|mock forces that provider.
    * - auto: OpenRouter key wins if present, else legacy API_OPEN_AI (Gemini if AIzaSy*, else OpenAI).
+   * - OpenRouter is free-only: only 'openrouter/free' or ':free' models are used.
    * Returns null when no usable key -> caller falls back to mock report.
    */
   resolveAiClient():
@@ -68,7 +82,15 @@ export class AiFunctionsService {
     const configuredProvider: string = ai?.provider ?? 'auto';
     const apiOpenAi: string | undefined = this.configService?.apiOpenAi;
     const openRouterKey: string | undefined = ai?.openrouter?.apiKey;
-    const openRouterModel: string = ai?.openrouter?.model ?? 'openai/gpt-4o-mini';
+    // Free-only: any non-free OPENROUTER_MODEL is replaced, never charged.
+    let openRouterModel = DEFAULT_FREE_OPENROUTER_MODEL;
+    if (isFreeOpenRouterModel(ai?.openrouter?.model)) {
+      openRouterModel = (ai.openrouter.model as string).trim();
+    } else if (ai?.openrouter?.model) {
+      this.logger.warn(
+        `OPENROUTER_MODEL "${ai.openrouter.model}" is not a free model — using "${DEFAULT_FREE_OPENROUTER_MODEL}" instead`,
+      );
+    }
     const openRouterBaseUrl: string =
       ai?.openrouter?.baseUrl ?? 'https://openrouter.ai/api/v1';
     const openRouterSiteUrl: string =

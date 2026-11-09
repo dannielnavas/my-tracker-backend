@@ -59,8 +59,10 @@ export default registerAs('config', () => {
         process.env.AI_PROVIDER?.trim().toLowerCase() || 'auto',
       openrouter: {
         apiKey: process.env.OPENROUTER_API_KEY,
+        // FREE only: default is the OpenRouter free router alias.
+        // Env must be 'openrouter/free' or end with ':free' (e.g. 'google/gemma-4-31b-it:free').
         model:
-          process.env.OPENROUTER_MODEL?.trim() || 'openai/gpt-4o-mini',
+          process.env.OPENROUTER_MODEL?.trim() || 'openrouter/free',
         baseUrl:
           process.env.OPENROUTER_BASE_URL?.trim() ||
           'https://openrouter.ai/api/v1',

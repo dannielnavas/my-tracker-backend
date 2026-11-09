@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AiFunctionsService } from './ai-functions.service';
+import {
+  AiFunctionsService,
+  DEFAULT_FREE_OPENROUTER_MODEL,
+  isFreeOpenRouterModel,
+} from './ai-functions.service';
 import config from '../config';
 import { TasksService } from '../tasks/services/tasks.service';
 import { PromptService } from '../prompt/service/prompt.service';
@@ -36,7 +40,7 @@ describe('AiFunctionsService OpenRouter resolution', () => {
         provider: 'auto',
         openrouter: {
           apiKey: 'sk-or-v1-test',
-          model: 'openrouter/free-test-model',
+          model: 'google/gemma-4-31b-it:free',
           baseUrl: 'https://openrouter.ai/api/v1',
           siteUrl: 'http://localhost:4200',
           appTitle: 'Focus Loop',
@@ -45,7 +49,52 @@ describe('AiFunctionsService OpenRouter resolution', () => {
     });
     const resolved = service.resolveAiClient();
     expect(resolved?.provider).toBe('openrouter');
-    expect(resolved?.model).toBe('openrouter/free-test-model');
+    expect(resolved?.model).toBe('google/gemma-4-31b-it:free');
+  });
+
+  it('accepts the openrouter/free router alias as a free model', async () => {
+    const service = await buildService({
+      apiOpenAi: 'sk-legacy',
+      ai: {
+        provider: 'openrouter',
+        openrouter: { apiKey: 'sk-or-v1-test', model: 'openrouter/free' },
+      },
+    });
+    expect(service.resolveAiClient()?.model).toBe('openrouter/free');
+  });
+
+  it('replaces a paid model with the free default instead of charging', async () => {
+    const service = await buildService({
+      apiOpenAi: 'sk-legacy',
+      ai: {
+        provider: 'openrouter',
+        openrouter: { apiKey: 'sk-or-v1-test', model: 'openai/gpt-4o-mini' },
+      },
+    });
+    expect(service.resolveAiClient()?.model).toBe(
+      DEFAULT_FREE_OPENROUTER_MODEL,
+    );
+  });
+
+  it('defaults to the free model when OPENROUTER_MODEL is unset', async () => {
+    const service = await buildService({
+      apiOpenAi: 'sk-legacy',
+      ai: {
+        provider: 'openrouter',
+        openrouter: { apiKey: 'sk-or-v1-test' },
+      },
+    });
+    expect(service.resolveAiClient()?.model).toBe(
+      DEFAULT_FREE_OPENROUTER_MODEL,
+    );
+  });
+
+  it('classifies only :free and openrouter/free as free models', () => {
+    expect(isFreeOpenRouterModel('openrouter/free')).toBe(true);
+    expect(isFreeOpenRouterModel('google/gemma-4-31b-it:free')).toBe(true);
+    expect(isFreeOpenRouterModel('openai/gpt-4o-mini')).toBe(false);
+    expect(isFreeOpenRouterModel('openrouter/free-test-model')).toBe(false);
+    expect(isFreeOpenRouterModel(undefined)).toBe(false);
   });
 
   it('falls back to legacy when OpenRouter key absent', async () => {
@@ -71,7 +120,7 @@ describe('AiFunctionsService OpenRouter resolution', () => {
       apiOpenAi: 'sk-legacy',
       ai: {
         provider: 'openrouter',
-        openrouter: { apiKey: 'sk-or-v1-test', model: 'm' },
+        openrouter: { apiKey: 'sk-or-v1-test', model: 'test/model:free' },
       },
     });
     expect(service.resolveAiClient()?.provider).toBe('openrouter');
