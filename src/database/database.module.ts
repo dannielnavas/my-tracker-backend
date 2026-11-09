@@ -24,7 +24,9 @@ const API_KEY_PROD = config().apiKeyProd;
           username,
           password,
           database,
-          synchronize: true, // Solo para desarrollo (no usar en producción)
+          synchronize: !['prod', 'production'].includes(
+            process.env.NODE_ENV ?? '',
+          ), // auto-sync solo fuera de prod (en prod el seed repara datos; en prod synchronize crashea con columnas NOT NULL con NULLs)
           //sunchronize: false, // en producción
           autoLoadEntities: true,
           ssl: {

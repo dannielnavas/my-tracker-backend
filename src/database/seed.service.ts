@@ -32,7 +32,8 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   private async seedSubscriptionPlans() {
-    // Idempotent per-id upsert (DDL section 5 seeds) — safe if table partially filled.
+    // Idempotent per-id upsert + repair — safe if table partially filled or
+    // contains NULL names/descriptions (prod rows created before NOT NULL).
     const plans = [
       {
         subscription_plan_id: 1,
@@ -62,6 +63,23 @@ export class SeedService implements OnApplicationBootstrap {
         this.logger.log(
           `Seeded subscription plan ${plan.subscription_plan_id} (${plan.name})`,
         );
+        continue;
+      }
+      const needsRepair =
+        !existing.name ||
+        existing.name !== plan.name ||
+        !existing.description ||
+        existing.description !== plan.description ||
+        existing.price == null ||
+        Number(existing.price) !== plan.price;
+      if (needsRepair) {
+        existing.name = plan.name;
+        existing.price = plan.price;
+        existing.description = plan.description;
+        await this.planRepo.save(existing);
+        this.logger.log(
+          `Repaired subscription plan ${plan.subscription_plan_id} (${plan.name})`,
+        );
       }
     }
   }
@@ -81,6 +99,14 @@ export class SeedService implements OnApplicationBootstrap {
         await this.statusRepo.save(status);
         this.logger.log(
           `Seeded task status ${status.status_task_id} (${status.name})`,
+        );
+        continue;
+      }
+      if (!existing.name || existing.name !== status.name) {
+        existing.name = status.name;
+        await this.statusRepo.save(existing);
+        this.logger.log(
+          `Repaired task status ${status.status_task_id} (${status.name})`,
         );
       }
     }
